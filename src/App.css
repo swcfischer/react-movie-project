@@ -1,0 +1,13 @@
+.active {
+  color: #000 !important;
+}
+
+.active-nav {
+  color: #999 !important;
+}
+
+body {
+  width: 100%;
+  font-weight: 100;
+}
+
