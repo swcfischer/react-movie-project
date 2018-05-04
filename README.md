@@ -14,4 +14,4 @@ The "Search" link will take you to a search page, which will automatically run a
 ### React Libaries
 I made use of a React library called Overdrive. It provides the animation that makes each movie image travel to its future spot when you click to view its details. I used the 'styled-components' for my styling, and created my own Backbutton component, which passes this.context.router.history.goBack() to an onClick event to return to the previous page.
 
-If you would like to contact me, please visit my portfolio website: Here
+If you would like to contact me, please visit my portfolio website: [Here](http://stevefischer.me/)
