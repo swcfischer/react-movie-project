@@ -3,12 +3,10 @@ import Movie from './Movie';
 import styled from 'styled-components';
 
 
-
-
 class Search extends Component {
   state = {
     search: '',
-    results: null
+    results: null,
   }
 
 
@@ -16,23 +14,23 @@ class Search extends Component {
     clearTimeout(this.id);
     const search = e.target.value;
     this.setState({
-      search: e.target.value
+      search: e.target.value,
     });
 
 
-      this.id = setTimeout(function() {
-        this.search(search);
-      }.bind(this), 500);
+    this.id = setTimeout(() => {
+      this.search(search);
+    }, 500);
   };
 
   search = (searchQuery) => {
-     fetch(`https://api.themoviedb.org/3/search/movie?api_key=49ab04c3e99d5e8468550f88238d2d2f&language=en-US&query=${searchQuery}&page=1&include_adult=false`)
-    .then(res =>  res.json())
-    .then((result) => {
-      this.setState({
-        results: result.results
-      })
-    });
+    fetch(`https://api.themoviedb.org/3/search/movie?api_key=49ab04c3e99d5e8468550f88238d2d2f&language=en-US&query=${searchQuery}&page=1&include_adult=false`)
+      .then(res => res.json())
+      .then((result) => {
+        this.setState({
+          results: result.results,
+        });
+      });
   }
 
   handleSubmit = (e) => {
@@ -41,26 +39,26 @@ class Search extends Component {
     const search = this.state.search;
 
     fetch(`https://api.themoviedb.org/3/search/movie?api_key=49ab04c3e99d5e8468550f88238d2d2f&language=en-US&query=${search}&page=1&include_adult=false`)
-    .then(res =>  res.json())
-    .then((result) => {
-      this.setState({
-        results: result.results
-      })
-    });
-
+      .then(res => res.json())
+      .then((result) => {
+        this.setState({
+          results: result.results,
+        });
+      });
   };
 
   render() {
+    console.log(Object.assign({}, this.props));
     return (
       <SearchContainer>
         <form onSubmit={this.handleSubmit}>
           <input
-          placeholder="Type the movie title"
-          type="text"
-          onChange={this.handleChange}
-          value={this.state.search}
+            placeholder="Type the movie title"
+            type="text"
+            onChange={this.handleChange}
+            value={this.state.search}
           />
-          <button type='submit'>
+          <button type="submit">
             Search
           </button>
         </form>
@@ -72,7 +70,7 @@ class Search extends Component {
               <p>No results found</p>
 
               ) : (
-                this.state.results.map((movie) => <Movie key={movie.id} page={1} movie={movie} />)
+                this.state.results.map(movie => <Movie key={movie.id} page={1} movie={movie} />)
               )
             }
           </MovieGrid>
@@ -80,7 +78,7 @@ class Search extends Component {
       </SearchContainer>
     );
   }
-};
+}
 
 
 export default Search;

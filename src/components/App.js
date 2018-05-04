@@ -23,7 +23,7 @@ const App = () => (
         </small>
       </header>
       <Switch>
-        <Route exact={true} path='/' component={Home} />
+        <Route exact path="/" component={Home} />
         <Route path="/discover" component={Discover} />
         <Route path="/search" component={Search} />
       </Switch>

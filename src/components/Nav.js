@@ -3,9 +3,7 @@ import { NavLink } from 'react-router-dom';
 import styled from 'styled-components';
 
 
-const Nav = () => {
-
-  return (
+const Nav = () => (
       <NavContainer>
         <li>
           <NavLink exact={true} activeClassName='active-nav' to='/' >
@@ -13,7 +11,7 @@ const Nav = () => {
           </NavLink>
         </li>
          <li>
-          <NavLink activeClassName='active-nav' to='/discover/page/:id' >
+          <NavLink activeClassName='active-nav' to='/discover/page/' >
             Explore Movies
           </NavLink>
         </li>
@@ -24,7 +22,6 @@ const Nav = () => {
         </li>
       </NavContainer>
   );
-}
 
 
 export default Nav;

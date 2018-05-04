@@ -4,25 +4,10 @@ import { Link } from 'react-router-dom';
 import { Poster } from './Movie';
 import styled from 'styled-components';
 import Overdrive from 'react-overdrive';
+import BackButton from './BackButton';
 
 const POSTER_PATH = 'http://image.tmdb.org/t/p/w154';
 const BACKDROP_PATH = 'http://image.tmdb.org/t/p/w1280';
-
-class BackButton extends Component {
-  static contextTypes = {
-    router: () => null,
-  }
-
-  render() {
-    return (
-      <button
-        className="button icon-left"
-        onClick={this.context.router.history.goBack}>
-          Back
-      </button>
-    )
-  }
-}
 
 class MovieDetail extends PureComponent {
   state = {
@@ -41,12 +26,12 @@ class MovieDetail extends PureComponent {
   }
 
   render() {
-    const { movie } = this.state
+    const { movie } = this.state;
     const numberWithCommas = (x) => {
-      var parts = x.toString().split(".");
-      parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-      return parts.join(".");
-    }
+      const parts = x.toString().split('.');
+      parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+      return parts.join('.');
+    };
     return (
       <MovieWrapper backdrop={`${BACKDROP_PATH}${movie.backdrop_path}`}>
         <MovieInfo>
@@ -61,9 +46,9 @@ class MovieDetail extends PureComponent {
               <BackButton />
             </GoBackContainer>
             <h3>
-            <strong>
-              Description: 
-            </strong> {movie.overview}
+              <strong>
+              Description:
+              </strong> {movie.overview}
             </h3>
             <p>
               <strong>
@@ -74,26 +59,26 @@ class MovieDetail extends PureComponent {
             </p>
             { movie.udge}
             <p>
-            <strong>
+              <strong className="finance">
               Budget:
-            </strong>
-            <span className="amount amount-1">
-              <span className="money">
+              </strong>
+              <span className="amount amount-1">
+                <span className="money">
                 $
+                </span>
+                {movie.budget && numberWithCommas(movie.budget)}
               </span>
-              {movie.budget && numberWithCommas(movie.budget)}
-            </span>
-              </p>
-                <p>
-                <strong>
+            </p>
+            <p>
+              <strong className="finance">
                   Revenue:
-                </strong> <span className="amount">
+              </strong> <span className="amount">
                 <span className="money">
                   $
                 </span>
-                  {(movie.revenue && Number(movie.revenue) > 10) && numberWithCommas(movie.revenue)}
-                </span>
-              </p>
+                {(movie.revenue && Number(movie.revenue) > 10) && numberWithCommas(movie.revenue)}
+                        </span>
+            </p>
             <LinkContainer>
               {movie.homepage &&
                 <Link to={`${movie.homepage}`} target="_blank">
@@ -101,13 +86,14 @@ class MovieDetail extends PureComponent {
                 </Link>
               }
               {movie.imdb_id &&
-                <Link 
-                  className="right" 
-                  to={`https://www.imdb.com/title/${movie.imdb_id}`} 
-                  target="_blank">
-                  
+                <Link
+                  className="right"
+                  to={`https://www.imdb.com/title/${movie.imdb_id}`}
+                  target="_blank"
+                >
+
                   Visit IMDB page
-                
+
                 </Link>
               }
             </LinkContainer>
@@ -128,13 +114,17 @@ const MovieWrapper = styled.div`
   span.money {
     color: green;
   }
+  strong.finance {
+    width: 75px;
+    display: inline-block;
+  }
   span.amount-1 {
     position: relative;
-    left: 27px;
+    right: -5px;
   }
   span.amount {
     display:inline-block;
-    width: 100px;
+    width: 150px;
     text-align:right;
   }
 `;
