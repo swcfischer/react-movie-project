@@ -48,7 +48,6 @@ class Search extends Component {
   };
 
   render() {
-    console.log(Object.assign({}, this.props));
     return (
       <SearchContainer>
         <form onSubmit={this.handleSubmit}>

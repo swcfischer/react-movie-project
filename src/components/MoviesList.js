@@ -39,7 +39,6 @@ class MoviesList extends Component {
     const currentPage = Number(this.state.page);
     let num;
     let end;
-    console.log(this.props.match);
     if (currentPage !== 1 && currentPage > 10) {
       const tens = Math.floor(currentPage / 10) * 10;
       num = tens;
