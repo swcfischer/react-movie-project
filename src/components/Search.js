@@ -1,49 +1,47 @@
-import React, { Component } from 'react';
+import React, { Component, createRef } from 'react';
 import Movie from './Movie';
 import styled from 'styled-components';
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
 
+import { searchText, storeResults } from '../reducer/searchActions';
+import { MovieGrid } from './MoviesList';
 
 class Search extends Component {
-  state = {
-    search: '',
-    results: null,
+  constructor(props) {
+    super(props);
+
+    this.input = createRef();
   }
 
+  componentDidMount() {
+    this.input.current.focus();
+  }
 
-  handleChange = (e) => {
-    clearTimeout(this.id);
+  handleChange = e => {
     const search = e.target.value;
-    this.setState({
-      search: e.target.value,
-    });
-
-
+    this.props.searchText(search);
+    clearTimeout(this.id);
     this.id = setTimeout(() => {
-      this.search(search);
+      if (!search) {
+        this.props.storeResults(null);
+      } else {
+        this.search(search);
+      }
     }, 500);
   };
 
-  search = (searchQuery) => {
-    fetch(`https://api.themoviedb.org/3/search/movie?api_key=49ab04c3e99d5e8468550f88238d2d2f&language=en-US&query=${searchQuery}&page=1&include_adult=false`)
-      .then(res => res.json())
-      .then((result) => {
-        this.setState({
-          results: result.results,
-        });
-      });
-  }
-
-  handleSubmit = (e) => {
+  handleSubmit = e => {
     e.preventDefault();
+  };
 
-    const search = this.state.search;
-
-    fetch(`https://api.themoviedb.org/3/search/movie?api_key=49ab04c3e99d5e8468550f88238d2d2f&language=en-US&query=${search}&page=1&include_adult=false`)
+  search = searchQuery => {
+    fetch(
+      `https://api.themoviedb.org/3/search/movie?api_key=49ab04c3e99d5e8468550f88238d2d2f&language=en-US&query=${searchQuery}&page=1&include_adult=false`
+    )
       .then(res => res.json())
-      .then((result) => {
-        this.setState({
-          results: result.results,
-        });
+      .then(({ results }) => {
+        this.props.storeResults(results);
       });
   };
 
@@ -55,32 +53,47 @@ class Search extends Component {
             placeholder="Type the movie title"
             type="text"
             onChange={this.handleChange}
-            value={this.state.search}
+            value={this.props.search}
+            ref={this.input}
           />
-          <button type="submit">
-            Search
-          </button>
         </form>
 
-        { this.state.results &&
-
+        {this.props.results && (
           <MovieGrid>
-            {this.state.results.length < 1 ? (
+            {this.props.results.length < 1 ? (
               <p>No results found</p>
-
-              ) : (
-                this.state.results.map(movie => <Movie key={movie.id} page={1} movie={movie} />)
-              )
-            }
+            ) : (
+              this.props.results.map(movie => (
+                <Movie
+                  link={`/search/${movie.id}`}
+                  key={movie.id}
+                  movie={movie}
+                />
+              ))
+            )}
           </MovieGrid>
-        }
+        )}
       </SearchContainer>
     );
   }
 }
 
+const mapStateToProps = state => ({
+  search: state.search.search,
+  results: state.search.results,
+  movies: state.explore.movies
+});
 
-export default Search;
+const mapDispatchToProps = dispatch =>
+  bindActionCreators(
+    {
+      searchText,
+      storeResults
+    },
+    dispatch
+  );
+
+export default connect(mapStateToProps, mapDispatchToProps)(Search);
 
 const SearchContainer = styled.div`
   input {
@@ -90,38 +103,15 @@ const SearchContainer = styled.div`
     height: 25px;
     font-size: 20px;
     border: none;
-    border-bottom: 1px solid #000;
+    border-bottom: 5px double #444;
     text-indent: 5px;
     outline: black;
+    margin-bottom: 45px;
   }
 
-  button {
-    display: block;
-    margin: 30px auto
-    outline: none;
-    cursor: pointer;
-    text-align: center;
-    text-decoration: none;
-    font: 14px/100% Arial, Helvetica, sans-serif;
-    padding: .5em 2em .55em;
-    text-shadow: 0 1px 1px rgba(0,0,0,.3);
-    -webkit-border-radius: .5em; 
-    -moz-border-radius: .5em;
-    border-radius: .5em;
-    -webkit-box-shadow: 0 1px 2px rgba(0,0,0,.2);
-    -moz-box-shadow: 0 1px 2px rgba(0,0,0,.2);
-    box-shadow: 0 1px 2px rgba(0,0,0,.2);
+  form {
+    display: flex;
+    justify-content: center;
+    padding-bottom: 20px;
   }
-  button:hover {
-    position: relative;
-    top: 1px;
-  }
-
-`;
-
-const MovieGrid = styled.div`
-  display: grid;
-  padding: 1rem;
-  grid-template-columns: repeat(6, 1fr);
-  grid-row-gap: 1rem;
 `;

@@ -1,160 +1,79 @@
 /* eslint react/no-did-mount-set-state: 0 */
-import React, { Component } from 'react';
+import React, { useEffect } from 'react';
 import styled from 'styled-components';
-import { Link } from 'react-router-dom';
-import Movie from './Movie';
-import api from './utils/utils';
-import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
 
-class MoviesList extends Component {
-  state = {
-    movies: [],
-    page: this.props.match.params.page ? this.props.match.params.page : 1,
-  };
-  async componentDidMount() {
-    try {
-      const search = `https://api.themoviedb.org/3/discover/movie?api_key=49ab04c3e99d5e8468550f88238d2d2f&language=en-US&sort_by=popularity.desc&include_adult=false&include_video=false&page=${this.props.match.params.page}`;
-      const res = await fetch(search);
-      const movies = await res.json();
-      this.setState({
-        movies: movies.results,
-      });
-    } catch (err) {
-      console.log(err); // eslint-disable-line
+import Movie from './Movie';
+import Pagination from './Pagination';
+
+import { fetchMovies, setPage } from '../reducer/exploreActions';
+
+class MoviesList extends React.Component {
+  componentDidMount() {
+    if (this.props.movies.length === 0) {
+      this.props.fetchMovies(this.props.match.params.page);
     }
   }
 
-  handlePrevPage = (e) => {
-    api.fetchPage(Number(this.state.page) - 1)
-      .then((results) => {
-        this.setState({
-          page: Number(this.state.page) - 1,
-          movies: results,
-        });
-      });
-  };
-
-  returnLinks = () => {
-    const linkArray = [];
-    const currentPage = Number(this.state.page);
-    let num;
-    let end;
-    if (currentPage !== 1 && currentPage > 10) {
-      const tens = Math.floor(currentPage / 10) * 10;
-      num = tens;
-      end = tens + 10;
-    } else {
-      num = 1;
-      end = 11;
+  componentDidUpdate(prevProps) {
+    if (this.props.page !== prevProps.page) {
+      this.props.fetchMovies(this.props.page);
     }
-    { for (; num < end; num++) {
-      linkArray.push(<li key={num}><Link id={num} onClick={this.handlePageClick} className={num === Number(this.state.page) ? 'active' : null} to={`/discover/page/${num}`}>{num}</Link></li>);
-    } }
 
-    return linkArray;
-  };
-
-
-  handleNextPage = (e) => {
-    api.fetchPage(this.state.page + 1)
-      .then((results) => {
-        this.setState({
-          page: Number(this.state.page) + 1,
-          movies: results,
-        });
-      });
-  };
-
-
-  handlePageClick = (e) => {
-    const page = e.target.id;
-    api.fetchPage(e.target.id)
-      .then((results) => {
-        this.setState({
-          page: Number(page),
-          movies: results,
-        });
-      });
-  };
-
-
+    if (Number(this.props.match.params.page) !== this.props.page) {
+      this.props.setPage(this.props.match.params.page);
+    }
+  }
   render() {
     return (
-      <LinkAdjustment>
-        {this.state.page > 1 ? (
-          <Link className="arrow" onClick={this.handlePrevPage} to={`/discover/page/${this.state.page - 1}`}>
-              Previous
-          </Link>
-          ) : (
-            <span>Previous</span>
-          )
-        }
-        <PagesContainer>
-          {this.returnLinks()}
-        </PagesContainer>
-        <Link className="arrow" onClick={this.handleNextPage} to={`/discover/page/${Number(this.state.page) + 1}`}>
-          Next
-        </Link>
-        <MovieGrid>
-          <ReactCSSTransitionGroup
-            transitionName="example"
-            transitionAppear
-            transitionEnterTimeout={750}
-            transitionLeave={false}
-            transitionAppearTimeout={0}
-          >
-            {this.state.movies.map(movie => <Movie key={movie.id} page={this.state.page} movie={movie} />)}
-          </ReactCSSTransitionGroup>
+      <React.Fragment>
+        <Pagination page={this.props.match.params.page} />
+        <MovieGrid key="movie-grid">
+          {this.props.movies.map(movie => (
+            <Movie
+              key={movie.id}
+              link={`/discover/${this.props.page}/${movie.id}`}
+              movie={movie}
+            />
+          ))}
         </MovieGrid>
-      </LinkAdjustment>
+      </React.Fragment>
     );
   }
 }
 
-export default MoviesList;
+const mapStateToProps = state => ({
+  movies: state.explore.movies,
+  page: state.explore.page
+});
 
-const PagesContainer = styled.ul`
-  display: inline-block;
-  padding: 0;
-  margin: 0;
-  li {
-    width: 30px;
-    display: inline-block;
+const mapDispatchToProps = dispatch =>
+  bindActionCreators(
+    {
+      fetchMovies,
+      setPage
+    },
+    dispatch
+  );
+
+export default connect(mapStateToProps, mapDispatchToProps)(MoviesList);
+
+export const MovieGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  grid-template-rows: repeat(4, 231px);
+  grid-row-gap: 105px;
+  max-width: 1200px;
+  margin: 0 auto;
+
+  @media (max-width: 805px) {
+    grid-template-columns: repeat(4, 1fr);
   }
-
-  li:hover {
-    position: relative;
-    top: 1px;
+  @media (max-width: 700px) {
+    grid-template-columns: repeat(2, 1fr);
   }
-
-  li > a {
-    color: #999;
-  }
-
-  a {
-    font-size: 20px;
-  } 
-`;
-
-const LinkAdjustment = styled.div`
-    height: 1000px;
-    a.arrow {
-      display: inline-block;
-      color: #000;
-      margin: 3px;
-    }
-    span {
-      cursor: default;
-      color: #888;
-      margin: 3px;
-    }
-`;
-
-const MovieGrid = styled.div`
-  span {
-    display: grid;
-    padding: 1rem;
-    grid-template-columns: repeat(6, 1fr);
-    grid-row-gap: 1rem;  
+  @media (max-width: 350px) {
+    grid-template-columns: repeat(1, 1fr);
   }
 `;
